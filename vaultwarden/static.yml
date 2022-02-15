@@ -1,0 +1,15 @@
+global:
+  sendAnonymousUsage: false
+providers:
+  docker:
+    watch: true
+    network: vaultwarden_front
+  file:
+    directory: /etc/traefik/dynamic
+    watch: true
+    filename: dynamic.yml
+entryPoints:
+  web:
+    address: ":80"
+  web-secure:
+    address: ":443"
