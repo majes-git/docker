@@ -1,0 +1,67 @@
+version: "3"
+
+services:
+  traefik:
+    image: traefik
+    command: --providers.docker
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ./static.yml:/etc/traefik/traefik.yml
+      - ./dynamic.yml:/etc/traefik/dynamic/traefik.yml
+      - /data/tls/fullchain.pem:/etc/traefik/fullchain.pem
+      - /data/tls/privkey.pem:/etc/traefik/privkey.pem
+
+  fecru:
+    image: atlassian/fisheye:4.8.3
+    ports:
+      - 8080:8080
+    volumes:
+      - /data/fisheye/crucible:/atlassian/data/crucible
+      - /data/fisheye/fisheye:/atlassian/data/fisheye
+    restart: always
+    labels:
+      - traefik.http.routers.app.rule=Host(`fisheye.example.com`)
+      - "traefik.http.routers.app.tls=true"
+    environment:
+      - "FISHEYE_OPTS=-Dfecru.configure.from.env.variables=true"
+      # LICENCE
+      - "FECRU_CONFIGURE_LICENSE_FISHEYE=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                         xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                         xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                         xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                         xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                         xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                         xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                         xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                         xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      - "FECRU_CONFIGURE_LICENSE_CRUCIBLE=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                          xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                          xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                          xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                          xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                          xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                          xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                          xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                          xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      # ADMIN PASSWORD
+      - "FECRU_CONFIGURE_ADMIN_PASSWORD=admin_password"
+      # DB
+      - "FECRU_CONFIGURE_DB_TYPE=postgresql"
+      - "FECRU_CONFIGURE_DB_HOST=db"
+      - "FECRU_CONFIGURE_DB_PORT=5432"
+      - "FECRU_CONFIGURE_DB_USER=postgres"
+      - "FECRU_CONFIGURE_DB_PASSWORD=db_password"
+ 
+  db:
+    image: postgres:11
+    ports:
+    - "5432:5432"
+    volumes:
+    -  /data/fisheye/postgresql:/var/lib/postgresql/data
+    environment:
+    - "POSTGRES_USER=postgres"
+    - "POSTGRES_PASSWORD=db_password"
