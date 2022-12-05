@@ -8,7 +8,13 @@ fi
 
 # TODO: add sanity checks for TLS certs/key
 
-# run incrond to monitor changes on authorize file and to reload radiusd
-incrond
+# run inotifywait to monitor changes on authorize file and to reload radiusd
+reload_radiusd() {
+    while true; do
+        inotifywait -e modify /etc/raddb/mods-config/files/authorize
+        pkill -HUP radiusd
+    done
+}
 
+reload_radiusd &
 exec radiusd -f
