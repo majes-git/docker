@@ -7,7 +7,7 @@ echo "${PRIVATE_KEY}" > /private_key
 chmod 0400 /private_key
 
 # prepare peers
-PEERS_COMMAND=""
+PEERS_COMMAND="listen-port 51820"
 for PEER in ${PEERS}; do
     ADDRESS=$(echo ${PEER} | awk -F: '{ print $1 }')
     PUBLIC_KEY=$(echo ${PEER} | awk -F: '{ print $2 }')
@@ -18,6 +18,7 @@ done
 
 # set up wireguard environment
 wg set wg0 private-key /private_key ${PEERS_COMMAND}
+ip link set up dev wg0
 ${IPTABLES}
 
 # do not stop the container when script is done
