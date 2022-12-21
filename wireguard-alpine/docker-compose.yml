@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  wireguard:
+    build: .
+    container_name: wireguard
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - 51820:51820/udp
+    environment:
+      - IP_ADDRESS=10.0.0.1/24
+      - PRIVATE_KEY=ABCDEF...
+      - PEERS=10.0.0.2/32:ZYXWVU... 10.0.0.3/32:TSRQPO... 
+      - ENDPOINT=vpn.example.com:51820
+      - KEEPALIVE=25
