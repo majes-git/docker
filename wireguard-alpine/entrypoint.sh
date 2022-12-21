@@ -19,7 +19,7 @@ done
 # set up wireguard environment
 wg set wg0 private-key /private_key ${PEERS_COMMAND}
 ip link set up dev wg0
-${IPTABLES}
+sh -c "${IPTABLES}"
 
 # do not stop the container when script is done
 sleep infinity
