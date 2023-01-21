@@ -1,0 +1,24 @@
+entryPoints:
+  web:
+    address: ':80'
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ':443'
+
+certificatesResolvers:
+  lets-encrypt:
+    acme:
+      storage: acme.json
+      tlsChallenge: {}
+      #caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+
+providers:
+  docker:
+    watch: true
+
+global:
+  sendAnonymousUsage: false
