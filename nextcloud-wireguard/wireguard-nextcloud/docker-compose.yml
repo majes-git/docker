@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  wireguard:
+    build: .
+    container_name: wireguard
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    networks:
+      default:
+        ipv4_address: 100.64.0.2
+    ports:
+      - 51820:51820/udp
+    environment:
+      - IP_ADDRESS=10.0.0.2/24
+      - PRIVATE_KEY=private_key
+      - PEERS=10.0.0.1/32:public_key
+      - ENDPOINT=nextcloud.example.com:51820
+      - KEEPALIVE=25
+      - IPTABLES=iptables -t nat -A PREROUTING -p tcp --match multiport --dports 80,443 -j DNAT --to 100.64.0.3; iptables -t nat -A POSTROUTING -p tcp --match multiport --dports 80,443 -o eth0 -j MASQUERADE
+
+networks:
+  default:
+    name: wireguard_nextcloud
+    external: true
