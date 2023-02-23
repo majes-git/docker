@@ -1,0 +1,55 @@
+version: "3"
+
+services:
+  guacd:
+    image: guacamole/guacd
+    restart: always
+
+  guacamole:
+    image: guacamole/guacamole
+    restart: always
+    ports:
+      - 8080:8080
+    links:
+      - guacd
+      - db
+    environment:
+      - GUACD_HOSTNAME=guacd
+      - MYSQL_HOSTNAME=db
+      - MYSQL_DATABASE=guacamole_db
+      - MYSQL_USER=guacamole_user
+      - MYSQL_PASSWORD=secret
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.guacamole.rule=Host(`guacamole.exmple.com`)
+      - traefik.http.routers.guacamole.tls=true
+      - traefik.http.routers.guacamole.tls.certresolver=lets-encrypt
+      - traefik.http.middlewares.guacamole-add-prefix.addprefix.prefix=/guacamole
+      - traefik.http.routers.guacamole.middlewares=guacamole-add-prefix@docker
+
+  db:
+    image: mariadb:10.5
+    restart: always
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=very_secret
+      - MYSQL_DATABASE=guacamole_db
+      - MYSQL_USER=guacamole_user
+      - MYSQL_PASSWORD=secret
+
+  traefik:
+    image: traefik
+    command: --providers.docker
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./acme.json:/acme.json
+      - ./traefik.yml:/traefik.yml
+
+volumes:
+  db:
