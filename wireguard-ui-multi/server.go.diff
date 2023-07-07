@@ -1,0 +1,36 @@
+diff --git a/server.go b/server.go
+index d3a3e13..dc0f96c 100644
+--- a/server.go
++++ b/server.go
+@@ -12,6 +12,7 @@ import (
+ 	"net/http/httputil"
+ 	"net/url"
+ 	"os"
++	"os/exec"
+ 	"path"
+ 	"regexp"
+ 	"strconv"
+@@ -326,6 +327,23 @@ func (s *Server) configureWireGuard() error {
+ 
+ 			for i, cidr := range dev.AllowedIPs {
+ 				allowedIPs[1+i] = *cidr
++				// Install routes to client networks
++				if s.clientIPRange.String() != cidr.String() {
++					log.Debugf("Adding route for network behind peer: ip route add %s dev %s", cidr.String(), *wgLinkName)
++					cmd := exec.Command("ip", "route", "add", cidr.String(), "dev", *wgLinkName)
++					stderr, err := cmd.StderrPipe()
++					if err != nil {
++						log.Fatal(err)
++					}
++					if err := cmd.Start(); err != nil {
++						log.Fatal(err)
++					}
++					slurp, _ := ioutil.ReadAll(stderr)
++					fmt.Printf("%s\n", slurp)
++					if err := cmd.Wait(); err != nil {
++						log.Fatal(err)
++					}
++				}
+ 			}
+ 			peer := wgtypes.PeerConfig{
+ 				PublicKey:         pubKey,

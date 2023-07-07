@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  traefik:
+    image: traefik
+    command:
+      --providers.docker
+      --entryPoints.web.address=:80
+      --entryPoints.websecure.address=:443
+      --certificatesresolvers.letsencrypt.acme.email=""
+      --certificatesresolvers.letsencrypt.acme.storage=acme.json
+      --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      #--accesslog=true
+      #--api.insecure=true
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./acme.json:/acme.json

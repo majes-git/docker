@@ -1,0 +1,26 @@
+  $name:
+    image: $image
+    restart: always
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    ports:
+      - '$vpn_port:51820/udp'
+    volumes:
+      - ./data/$name:/data
+    links:
+      - traefik
+    environment:
+      - WIREGUARD_UI_DATA_DIR=/data
+      - WIREGUARD_UI_WG_ENDPOINT=$vpn_endpoint:$vpn_port
+      - WIREGUARD_UI_CLIENT_IP_RANGE=$vpn_net
+      - WIREGUARD_UI_WG_ALLOWED_IPS=$vpn_net,$net
+      - WIREGUARD_UI_WG_KEEPALIVE=25
+      - WIREGUARD_UI_AUTH_BASIC_USER=admin
+      - WIREGUARD_UI_AUTH_BASIC_PASS=$admin_pass
+    labels:
+      - "traefik.http.routers.$name.rule=Host(`$vpn_endpoint`)"
+      - traefik.http.services.$name.loadbalancer.server.port=8080
+      - traefik.http.routers.$name.tls=true
+      - traefik.http.routers.$name.tls.certresolver=letsencrypt
+
