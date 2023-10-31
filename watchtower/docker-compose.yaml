@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  watchtower:
+    image: containrrr/watchtower
+    restart: always
+    environment:
+      - WATCHTOWER_NOTIFICATIONS=email
+      - WATCHTOWER_NOTIFICATION_EMAIL_FROM=watchtower@example.com
+      - WATCHTOWER_NOTIFICATION_EMAIL_TO=admin@example.com
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER=mail.example.com
+      - WATCHTOWER_LABEL_ENABLE=true
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    #command: --interval 30
+
