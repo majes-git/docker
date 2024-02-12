@@ -1,0 +1,58 @@
+- name: Deploy Docker Host
+  hosts: all
+  user: root
+
+  vars:
+    base_dir: /srv/docker
+
+  tasks:
+    - name: Install Required System Packages
+      package:
+        name:
+          - gnupg
+          - rsync
+        state: latest
+        update_cache: true
+
+    - name: Check if /srv is mounted
+      command: grep /srv /proc/mounts
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable
+        state: present
+
+    - name: Update Package Cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Create Docker Config Directory
+      file:
+        path: /etc/docker
+        state: directory
+
+    - name: Configure Docker Daemon
+      copy:
+        dest: /etc/docker/daemon.json
+        content: |
+            {
+              "data-root": "{{ base_dir }}/data-root"
+            }
+
+    - name: Install Packages
+      package:
+        name:
+          - docker-ce
+          - docker-compose-plugin
+        state: latest
+
+    - name: Create Docker Container Directory
+      file:
+        path: "{{ base_dir }}/containers"
+        state: directory
