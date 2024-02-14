@@ -25,8 +25,7 @@ services:
     build: .
     restart: always
     labels:
-      - com.centurylinklabs.watchtower.enable=true
-      - "traefik.http.routers.www.rule=Host(`www.example.com`)"
+      - "traefik.http.routers.www.rule=Host(`www.example.com`) || Host(`example.com`)"
       - traefik.http.routers.www.tls=true
       - traefik.http.routers.www.tls.certresolver=letsencrypt
     links:
