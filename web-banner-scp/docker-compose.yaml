@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  main:
+    build: .
+    restart: always
+    ports:
+      - 2222:22
+    volumes:
+      - ssh:/etc/ssh
+      - webserver:/var/www/html
+
+volumes:
+  ssh:
+  webserver:
+    external: true
+    name: webserver_php
+
