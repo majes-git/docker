@@ -56,7 +56,10 @@ def main():
     for site in parameters.get('sites'):
         print(site.get('name'))
         site = populate_site_parameters(site, domain)
-        write_site_config(template.substitute(**site), append)
+        site_config = template.safe_substitute(**site)
+        # if no extra net is configured (tunnelbroker mode), remove variable
+        site_config = site_config.replace(',$net', '')
+        write_site_config(site_config, append)
         append = True
 
 
