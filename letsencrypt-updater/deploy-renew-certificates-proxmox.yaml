@@ -1,7 +1,3 @@
-- import_playbook: deploy-renew-certificates.yaml
-  vars:
-    hook_script: false
-
 - hosts: all
   gather_facts: no
   tasks:
@@ -14,3 +10,7 @@
           cp /etc/tls/fullchain.pem /etc/pve/local/pveproxy-ssl.pem && \
           cp /etc/tls/privkey.pem /etc/pve/local/pveproxy-ssl.key && \
           systemctl restart pveproxy
+
+- import_playbook: deploy-renew-certificates.yaml
+  vars:
+    hook_script: false
