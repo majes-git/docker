@@ -5,6 +5,7 @@
   vars:
     base_url: https://github.com/majes-git/docker/raw/master/letsencrypt-updater
     cert_directory: /etc/tls
+    domain: example.com
     username: admin
     password: secret
     hook_script: true
@@ -20,7 +21,7 @@
       copy:
         dest: /etc/renew-certificates.conf
         content: |
-          DOMAIN=example.com
+          DOMAIN={{ domain }}
           TLS_DIR={{ cert_directory }}
           WEB_USER={{ username }}
           WEB_PASS={{ password }}
