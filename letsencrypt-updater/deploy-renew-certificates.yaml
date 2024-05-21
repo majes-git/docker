@@ -1,0 +1,46 @@
+- name: Deploy Renew Certificates
+  hosts: all
+  user: root
+
+  vars:
+    base_url: https://github.com/majes-git/docker/raw/master/letsencrypt-updater
+    cert_directory: /etc/tls
+    username: admin
+    password: secret
+    hook_script: true
+
+  tasks:
+    - name: Download renew-certificates.bash
+      get_url:
+        url: "{{ base_url }}/renew-certificates.bash"
+        dest: /usr/local/sbin/renew-certificates.bash
+        mode: '755'
+
+    - name: Create renew-certificates config file
+      copy:
+        dest: /etc/renew-certificates.conf
+        content: |
+          DOMAIN=example.com
+          TLS_DIR={{ cert_directory }}
+          WEB_USER={{ username }}
+          WEB_PASS={{ password }}
+          #WEB_URL="https://${WEB_USER}:${WEB_PASS}@letsencrypt-certs.${DOMAIN}/${DOMAIN}_ecc"
+          #RENEW_DAYS=10
+
+    - name: Create TLS certificate directory
+      file:
+        path: "{{ cert_directory }}"
+        state: directory
+
+    - name: Create post renew hook script
+      get_url:
+        url: "{{ base_url }}/renew-certificates-post.bash"
+        dest: /usr/local/sbin/renew-certificates-post.bash
+      when: hook_script
+
+    - name: Create cronjob for renew-certificates
+      cron:
+        name: renew-certificates
+        minute: 0
+        hour: 3
+        job: /usr/local/sbin/renew-certificates.bash

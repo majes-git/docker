@@ -1,0 +1,16 @@
+- import_playbook: deploy-renew-certificates.yaml
+  vars:
+    hook_script: false
+
+- hosts: all
+  gather_facts: no
+  tasks:
+    - name: Create post renew hook script (Proxmox variant)
+      copy:
+        dest: /usr/local/sbin/renew-certificates-post.bash
+        content: |
+          # Run commands after certificates have been renewed
+          # (cd /srv/docker/containers/wordpress; docker compose restart)
+          cp /etc/tls/fullchain.pem /etc/pve/local/pveproxy-ssl.pem && \
+          cp /etc/tls/privkey.pem /etc/pve/local/pveproxy-ssl.key && \
+          systemctl restart pveproxy
