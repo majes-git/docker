@@ -45,3 +45,6 @@
         minute: 0
         hour: 3
         job: /usr/local/sbin/renew-certificates.bash
+
+    - name: Call renew-certificates
+      command: /usr/local/sbin/renew-certificates.bash
