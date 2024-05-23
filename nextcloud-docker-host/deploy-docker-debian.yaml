@@ -1,0 +1,64 @@
+- name: Deploy docker
+  hosts: all
+  user: root
+  gather_facts: false
+
+  vars:
+    docker_device: /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1
+    docker_root: /srv/docker
+
+  tasks:
+    - name: Install required packages
+      package:
+        name:
+          - gnupg
+          - parted
+        state: latest
+
+    - name: Create a new ext4 primary partition
+      community.general.parted:
+        #device: /dev/sdb
+        device: "{{ docker_device }}"
+        number: 1
+        state: present
+        fs_type: ext4
+
+    - name: Create a ext4 filesystem on second disk
+      filesystem:
+        fstype: ext4
+        dev: "{{ docker_device }}-part1"
+        #dev: /dev/sdb1
+        opts: -L docker
+
+    - name: Mount docker filesystem
+      ansible.posix.mount:
+        src: LABEL=docker
+        path: "{{ docker_root }}"
+        fstype: ext4
+        state: mounted
+
+    - name: Create docker config directory
+      file:
+        path: /etc/docker
+        state: directory
+        mode: '0755'
+
+    - name: Adjust docker data-root
+      copy:
+        content: |
+          {
+            "data-root": "{{ docker_root }}/data-root"
+          }
+        dest: /etc/docker/daemon.json
+
+    - name: Install docker packages
+      package:
+        name:
+          - docker-compose
+        state: latest
+
+    - name: Create docker container directory
+      file:
+        path: "{{ docker_root }}/containers"
+        state: directory
+        mode: '1777'
