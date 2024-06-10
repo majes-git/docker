@@ -14,7 +14,7 @@ cert_file=/letsencrypt/${DOMAIN}_ecc/${DOMAIN}.cer
 
 get_cert() {
     acme.sh --$1 --server letsencrypt --home $LE_WORKING_DIR --dns $DNS_API -d $DOMAIN -d "*.$DOMAIN"
-    (cd /letsencrypt/${DOMAIN}_ecc/; cat ${DOMAIN}.key > privkey.pem)
+    (cd /letsencrypt/${DOMAIN}_ecc/; cat ${DOMAIN}.key > privkey.pem; chmod 644 privkey.pem)
 }
 
 while : ; do
