@@ -33,6 +33,7 @@ if ! $OCC ldap:show-config s01 >/dev/null; then
     $SET_CONFIG ldapUserDisplayName "$LDAP_USER_DISPLAYNAME"
     $SET_CONFIG ldapUserFilter "$LDAP_USER_FILTER"
     $SET_CONFIG ldapGroupFilter "$LDAP_GROUP_FILTER"
+    $SET_CONFIG ldapEmailAttribute mail
     $SET_CONFIG hasMemberOfFilterSupport 1
     $SET_CONFIG ldapLoginFilterUsername 1
     $SET_CONFIG ldapExperiencedAdmin 1
