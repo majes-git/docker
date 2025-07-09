@@ -19,8 +19,8 @@
       - WIREGUARD_UI_AUTH_BASIC_USER=admin
       - WIREGUARD_UI_AUTH_BASIC_PASS=$admin_pass
     labels:
+      - traefik.enable=true
       - "traefik.http.routers.$name.rule=Host(`$vpn_endpoint`)"
       - traefik.http.services.$name.loadbalancer.server.port=8080
       - traefik.http.routers.$name.tls=true
       - traefik.http.routers.$name.tls.certresolver=letsencrypt
-
