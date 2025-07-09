@@ -52,7 +52,8 @@ def write_site_config(payload, append=False, filename='docker-compose.override.y
     mode = 'a' if append else 'w'
     with open(filename, mode) as fd:
         if not append:
-            fd.write('services:\n\n')
+            fd.write('services:')
+        fd.write('\n\n')
         return fd.write(payload)
 
 
