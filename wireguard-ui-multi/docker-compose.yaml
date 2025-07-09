@@ -19,3 +19,22 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./acme.json:/acme.json
+    # in case there is another reverse-proxy in front of us,
+    # use something like this:
+    # networks:
+    #   default:
+    #   nginx:
+    #     aliases:
+    #       - vpn1.example.com
+
+  # data-sync:
+  #   build: data-sync
+  #   restart: always
+  #   environment:
+  #     - SYNC_TARGET=vpn2.example.com
+  #     - SYNC_SYNC_SSH_PORT=2222
+  #   volumes:
+  #     - ./data:/data:ro
+  #     - ./sites.yaml:/sites.yaml:ro
+  #     - ./known_hosts_vpn2:/root/.ssh/known_hosts:ro
+  #     - ./id_rsa_vpn2:/root/.ssh/id_rsa:ro

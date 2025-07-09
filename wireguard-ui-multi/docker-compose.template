@@ -8,8 +8,6 @@
       - '$vpn_port:51820/udp'
     volumes:
       - ./data/$name:/data
-    links:
-      - traefik
     environment:
       - WIREGUARD_UI_DATA_DIR=/data
       - WIREGUARD_UI_WG_ENDPOINT=$vpn_endpoint:$vpn_port
