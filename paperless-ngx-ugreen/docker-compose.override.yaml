@@ -1,0 +1,41 @@
+services:
+  broker:
+    volumes:
+      - ./volumes/redis:/data
+
+  db:
+    environment:
+      MARIADB_PASSWORD:
+      MARIADB_ROOT_PASSWORD:
+      MARIADB_PASSWORD_FILE: /run/secrets/db_password
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+    secrets:
+      - db_password
+      - db_root_password
+    volumes:
+      - ./volumes/database:/var/lib/mysql
+
+  webserver:
+    env_file:
+      - path: ./.env
+        required: true # default
+      - path: ./.paperless_secret.env
+        required: false
+      - path: ./.paperless_uid.env
+        required: false
+    environment:
+      PAPERLESS_DBPASS:
+      PAPERLESS_DBPASS_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      - ./volumes/data:/usr/src/paperless/data
+      - ./volumes/media:/usr/src/paperless/media
+      - ./volumes/export:/usr/src/paperless/export
+      - ./incoming:/usr/src/paperless/consume
+
+secrets:
+  db_password:
+    file: db_password.txt
+  db_root_password:
+    file: db_root_password.txt
