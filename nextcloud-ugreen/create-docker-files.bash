@@ -21,6 +21,13 @@ if [ ! -e docker-compose.yaml ]; then
     curl -sSLo docker-compose.yaml 'https://github.com/majes-git/docker/raw/refs/heads/master/nextcloud-ugreen/docker-compose.yaml'
 fi
 
+if [ ! -e crontabs_www-data ]; then
+    {
+        echo '*/5 * * * * php -f /var/www/html/cron.php'
+        echo '*/5 * * * * /var/www/html/occ files:scan --all --quiet'
+    } > crontabs_www-data
+fi
+
 file=lib.sh
 if [ ! -e $file ]; then
     sed 's/ \{8\}//' > $file <<'EOF'
@@ -105,6 +112,9 @@ if [ ! -e docker-compose.override.yaml ]; then
         cat > docker-compose.override.yaml <<EOF
 services:
   app:
+    volumes:
+    - /volume1/paperless-ngx/volumes/media/documents/archive:/paperless-ngx:ro
+  cron:
     volumes:
     - /volume1/paperless-ngx/volumes/media/documents/archive:/paperless-ngx:ro
 EOF

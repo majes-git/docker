@@ -53,6 +53,7 @@ services:
       - ./volumes/apps:/var/www/html/custom_apps
       - ./volumes/config:/var/www/html/config
       - ./volumes/data:/var/www/html/data
+      - ./crontabs_www-data:/var/spool/cron/crontabs/www-data:ro
     entrypoint: /cron.sh
 
   app:
